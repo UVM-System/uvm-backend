@@ -1,4 +1,4 @@
-package model
+package database
 
 import (
 	"fmt"
@@ -6,6 +6,7 @@ import (
 	"gorm.io/gorm"
 	"sync"
 	"uvm-backend/config"
+	"uvm-backend/model"
 )
 
 var once sync.Once
@@ -19,27 +20,27 @@ func initDatabase() {
 	if err != nil {
 		panic(err)
 	}
-	err = db.AutoMigrate(&Business{})
+	err = db.AutoMigrate(&model.Business{})
 	if err != nil {
 		panic(err)
 	}
-	err = db.AutoMigrate(&User{})
+	err = db.AutoMigrate(&model.User{})
 	if err != nil {
 		panic(err)
 	}
-	err = db.AutoMigrate(&Machine{})
+	err = db.AutoMigrate(&model.Machine{})
 	if err != nil {
 		panic(err)
 	}
-	err = db.AutoMigrate(&Model{})
+	err = db.AutoMigrate(&model.Model{})
 	if err != nil {
 		panic(err)
 	}
-	err = db.AutoMigrate(&Product{})
+	err = db.AutoMigrate(&model.Product{})
 	if err != nil {
 		panic(err)
 	}
-	err = db.AutoMigrate(&Order{})
+	err = db.AutoMigrate(&model.Order{})
 	if err != nil {
 		panic(err)
 	}

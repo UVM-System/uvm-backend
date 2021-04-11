@@ -6,7 +6,7 @@ import (
 	"uvm-backend/service"
 )
 
-func GetBusiness(ctx *gin.Context) {
+func GetBusinessById(ctx *gin.Context) {
 	var data struct{
 		ID string
 	}

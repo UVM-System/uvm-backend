@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"log"
+	"uvm-backend/database"
 	"uvm-backend/model"
 )
 
@@ -14,7 +15,7 @@ func main() {
 }
 
 func ope() (err error) {
-	db := model.GetDB()
+	db := database.GetDB()
 	trans := db.Begin()
 	defer func() {
 		if err != nil {
