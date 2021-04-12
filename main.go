@@ -3,13 +3,15 @@ package main
 import (
 	"fmt"
 	"log"
+	"uvm-backend/config"
 	"uvm-backend/database"
 	"uvm-backend/model"
+	"uvm-backend/router"
 )
 
 func main() {
-	err := ope()
-	if err != nil {
+	conf := config.GetConfig()
+	if err := router.Router().Run(":" + conf.PORT); err != nil {
 		log.Fatal(err)
 	}
 }

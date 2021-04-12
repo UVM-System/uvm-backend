@@ -10,6 +10,7 @@ type Config struct {
 	DBPassword string `default:"123456"`
 	DBAddress  string `default:"127.0.0.1:3306"`
 	DBName     string `default:"uvm"`
+	PORT     string `default:"8000"`
 
 	// Use 'id' to change the name of a flag.
 	ConfigFile string `id:"config" short:"c"`

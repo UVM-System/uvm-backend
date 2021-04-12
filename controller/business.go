@@ -1,9 +1,7 @@
 package controller
 
 import (
-	"errors"
 	"github.com/gin-gonic/gin"
-	"uvm-backend/service"
 )
 
 func GetBusinessById(ctx *gin.Context) {
@@ -11,10 +9,16 @@ func GetBusinessById(ctx *gin.Context) {
 		ID string
 	}
 	ctx.ShouldBindJSON(&data)
-	var err error
-	if errors.Is(err, service.ErrorNameInvalid){
 
+}
+
+func AddBusiness(ctx *gin.Context)  {
+	var data struct{
+		Name string
+		Info string
 	}
+	ctx.ShouldBindJSON(&data)
+
 }
 
 func PostBusiness(ctx *gin.Context) {

@@ -1,5 +1,5 @@
 package service
 
-func GetBusinessById()  {
-	
+func AddBusiness(name, info string)  {
+
 }
