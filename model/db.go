@@ -6,7 +6,7 @@ import (
 
 var DB = database.GetDB()
 
-func init()  {
+func init() {
 	err := DB.AutoMigrate(&Business{})
 	if err != nil {
 		panic(err)

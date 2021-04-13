@@ -1,5 +1,5 @@
 package service
 
-func AddBusiness(name, info string)  {
+func AddBusiness(name, info string) {
 
 }

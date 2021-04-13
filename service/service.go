@@ -12,7 +12,7 @@ func test() error {
 	if err != nil {
 		return fmt.Errorf("Aadfsadf: %w", ErrorNameInvalid)
 	}
-	if errors.Is(err, ErrorNameInvalid){
+	if errors.Is(err, ErrorNameInvalid) {
 
 	}
 	return err

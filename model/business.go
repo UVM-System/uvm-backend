@@ -12,7 +12,7 @@ type Business struct {
 	RegisterTime time.Time `json:"register_time"`
 }
 
-func (Business)TableName() string {
+func (Business) TableName() string {
 	return "business"
 }
 
