@@ -16,17 +16,8 @@ func (Business) TableName() string {
 	return "business"
 }
 
-// 增加商家
-// @param name string "商家名称"
-// @param info string "商家信息"
-// @return id uint "商家id"
-func (*Business) AddBusiness(name, info string) (id uint, err error) {
-	business := Business{
-		Name:         name,
-		Info:         info,
-		RegisterTime: time.Now(),
-	}
-	result := DB.Create(&business)
+func (business *Business) AddBusiness() (id uint, err error) {
+	result := DB.Create(business)
 	if result.Error != nil {
 		log.Println(result.Error)
 		return 0, result.Error
