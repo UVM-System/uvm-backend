@@ -9,10 +9,25 @@ import (
 
 func GetBusinessById(ctx *gin.Context) {
 	var data struct {
-		ID string
+		ID uint
 	}
 	ctx.ShouldBindJSON(&data)
-
+	name, info, t, err := service.GetBusinessById(data.ID)
+	if err != nil {
+		log.Println(err)
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"message": "failed",
+			"name": "",
+			"info": "",
+			"register time": t,
+		})
+	}
+	ctx.JSON(http.StatusOK, gin.H{
+		"message": "success",
+		"name": name,
+		"info": info,
+		"register time": t,
+	})
 }
 
 func AddBusiness(ctx *gin.Context) {
@@ -21,7 +36,6 @@ func AddBusiness(ctx *gin.Context) {
 		Info string
 	}
 	ctx.ShouldBindJSON(&data)
-	log.Println("name: ", data.Name, "\t info: ", data.Info)
 	id, err := service.AddBusiness(data.Name, data.Info)
 	if err != nil {
 		log.Println(err)
@@ -36,8 +50,4 @@ func AddBusiness(ctx *gin.Context) {
 		"message": "增加成功",
 		"id":      id,
 	})
-}
-
-func PostBusiness(ctx *gin.Context) {
-
 }

@@ -16,21 +16,21 @@ func (Business) TableName() string {
 	return "business"
 }
 
-func (business *Business) AddBusiness() (id uint, err error) {
-	result := DB.Create(business)
+func (b *Business) AddBusiness() (id uint, err error) {
+	result := DB.Create(b)
 	if result.Error != nil {
 		log.Println(result.Error)
 		return 0, result.Error
 	}
-	return business.ID, nil
+	return b.ID, nil
 }
 
 // 根据商家 id 查询商家
 // @param id uint "商家id"
 // @param info string "商家信息"
 // @return id uint "商家id"
-func (*Business) GetBusinessById(id uint) (business Business, err error) {
-	result := DB.First(&business, id)
+func (b *Business) GetBusinessById() (business Business, err error) {
+	result := DB.First(&business, b.ID)
 	err = result.Error
 	if err != nil {
 		log.Println(err)

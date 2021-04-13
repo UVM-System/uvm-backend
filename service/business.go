@@ -23,3 +23,15 @@ func AddBusiness(name, info string) (id uint, err error) {
 	}
 	return
 }
+
+func GetBusinessById(id uint) (name, info string, t time.Time, err error) {
+	business := &model.Business{
+		ID: id,
+	}
+	b, err := business.GetBusinessById()
+	if err != nil {
+		log.Println(err)
+		return "", "", time.Now(), err
+	}
+	return b.Name, b.Info, b.RegisterTime, nil
+}
