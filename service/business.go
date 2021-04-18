@@ -1,6 +1,7 @@
 package service
 
 import (
+	"fmt"
 	"log"
 	"time"
 	"uvm-backend/model"
@@ -11,6 +12,11 @@ import (
 // @param info string "商家信息"
 // @return id uint "商家id"
 func AddBusiness(name, info string) (id uint, err error) {
+	defer func() {
+		if err != nil {
+			err = fmt.Errorf("service.AddBusiness: %w", err)
+		}
+	}()
 	business := &model.Business{
 		Name:         name,
 		Info:         info,
@@ -25,6 +31,11 @@ func AddBusiness(name, info string) (id uint, err error) {
 }
 
 func GetBusinessById(id uint) (name, info string, t time.Time, err error) {
+	defer func() {
+		if err != nil {
+			err = fmt.Errorf("service.GetBusinessById: %w", err)
+		}
+	}()
 	business := &model.Business{
 		ID: id,
 	}

@@ -3,7 +3,6 @@ package controller
 import (
 	"github.com/gin-gonic/gin"
 	"log"
-	"net/http"
 	"uvm-backend/service"
 )
 
@@ -15,15 +14,10 @@ func GetBusinessById(ctx *gin.Context) {
 	name, info, t, err := service.GetBusinessById(data.ID)
 	if err != nil {
 		log.Println(err)
-		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": "failed",
-			"name": "",
-			"info": "",
-			"register time": t,
-		})
+		ErrorResponse(ctx, err)
+		return
 	}
-	ctx.JSON(http.StatusOK, gin.H{
-		"message": "success",
+	SuccessResponse(ctx, gin.H{
 		"name": name,
 		"info": info,
 		"register time": t,
@@ -39,13 +33,10 @@ func AddBusiness(ctx *gin.Context) {
 	id, err := service.AddBusiness(data.Name, data.Info)
 	if err != nil {
 		log.Println(err)
-		ctx.JSON(http.StatusBadRequest, gin.H{
-			"code":    -1,
-			"message": "增加失败",
-		})
+		ErrorResponse(ctx, err)
 		return
 	}
-	ctx.JSON(http.StatusOK, gin.H{
+	SuccessResponse(ctx, gin.H{
 		"code":    1,
 		"message": "增加成功",
 		"id":      id,

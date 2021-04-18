@@ -1,6 +1,7 @@
 package model
 
 import (
+	"fmt"
 	"log"
 	"time"
 )
@@ -17,12 +18,17 @@ func (Business) TableName() string {
 }
 
 func (b *Business) AddBusiness() (id uint, err error) {
+	defer func() {
+		if err != nil {
+			err = fmt.Errorf("model.AddBusiness: %w", err)
+		}
+	}()
 	result := DB.Create(b)
 	if result.Error != nil {
 		log.Println(result.Error)
 		return 0, result.Error
 	}
-	return b.ID, nil
+	return b.ID, err
 }
 
 // 根据商家 id 查询商家
@@ -30,11 +36,16 @@ func (b *Business) AddBusiness() (id uint, err error) {
 // @param info string "商家信息"
 // @return id uint "商家id"
 func (b *Business) GetBusinessById() (business Business, err error) {
+	defer func() {
+		if err != nil {
+			err = fmt.Errorf("model.GetBusinessById: %w", err)
+		}
+	}()
 	result := DB.First(&business, b.ID)
 	err = result.Error
 	if err != nil {
-		log.Println(err)
-		return Business{}, result.Error
+		//log.Println(err)
+		return Business{}, err
 	}
 	return
 }
