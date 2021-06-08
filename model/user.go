@@ -2,17 +2,19 @@ package model
 
 import (
 	"fmt"
+	"gorm.io/gorm"
 	"log"
 	"time"
 )
 
 type User struct {
-	Id           uint      `json:"id" gorm:"primaryKey"`
-	Name         string    `json:"name" gorm:"size:50"`
-	DealTimes    int       `json:"deal_times" gorm:"default:0;not null"`
-	BusinessId   uint      `json:"business_id" gorm:"not null"`
-	LastDealTime time.Time `json:"last_deal_time"`
-	WXOpenId     string    `json:"wx_open_id" gorm:"not null;index:openid_idx"`
+	Id           uint       `json:"id" gorm:"primaryKey"`
+	Name         string     `json:"name" gorm:"size:50"`
+	DealTimes    int        `json:"deal_times" gorm:"default:0;not null"`
+	BusinessId   uint       `json:"business_id" gorm:"not null";sql:"type:integer constraint fk_product_business REFERENCES business(id)"`
+	Business     Business   `json:"business";gorm:"ForeignKey:BusinessId;AssociationForeignKey:ID"`
+	LastDealTime *time.Time `json:"last_deal_time"` // *time.Time允许空值
+	WXOpenId     string     `json:"wx_open_id" gorm:"not null;index:openid_idx"`
 }
 
 func (User) TableName() string {
@@ -24,11 +26,12 @@ func (User) TableName() string {
 */
 func (u *User) GetUserByOpenId() (user User, err error) {
 	defer func() {
-		if err != nil {
+		if err != nil && err != gorm.ErrRecordNotFound {
+			// 没有记录时不修改，否则service不好判断
 			err = fmt.Errorf("model.GetUserByOpenId: %w", err)
 		}
 	}()
-	result := DB.First(&user, u.WXOpenId)
+	result := DB.Where(u).First(&user)
 	err = result.Error
 	if err != nil {
 		//log.Println(err)

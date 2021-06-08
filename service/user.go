@@ -11,15 +11,6 @@ import (
 	"uvm-backend/utils"
 )
 
-// 微信接口服务返回值
-type WXLoginResp struct {
-	OpenID     string `json:"open_id"`
-	SessionKey string `json:"session_key"`
-	UnionID    string `json:"union_id"`
-	ErrCode    int    `json:"errcode"`
-	ErrMsg     string `json:"errmsg"`
-}
-
 //// wx.getUserInfo得到的完整信息
 //type WXUser struct {
 //	UserInfo      NonSensitiveUser `json:"user_info"`
@@ -41,6 +32,16 @@ type WXLoginResp struct {
 //	Language    string        `json:"language"`
 //}
 
+// 微信接口服务返回值
+// 注意查看api定义的json值
+type WXLoginResp struct {
+	OpenID     string `json:"openid"`
+	SessionKey string `json:"session_key"`
+	UnionID    string `json:"unionid"`
+	ErrCode    int    `json:"errcode"`
+	ErrMsg     string `json:"errmsg"`
+}
+
 /**
 输入小程序发送的code，返回请求微信接口服务进而得到的openID, unionID, session-key和错误情况
 目前不需要微信的UserInfo
@@ -51,12 +52,11 @@ func WXLogin(code string) (w *WXLoginResp, err error) {
 			err = fmt.Errorf("service.WXLogin: %w", err)
 		}
 	}()
-	appId := ""
-	appSecret := ""
+	appId := "wx7246396bd244fb02"
+	appSecret := "ec6c4b6cdbdf81250cf1bc2f9e2e8860"
 	url := "https://api.weixin.qq.com/sns/jscode2session?appid=%s&secret=%s&js_code=%s&grant_type=authorization_code"
 	// 合成url, appId和appSecret可以直接得到
 	url = fmt.Sprintf(url, appId, appSecret, code)
-	// http get请求
 	resp, err := http.Get(url)
 	if err != nil {
 		log.Println(err)
@@ -97,7 +97,7 @@ func UserLogin(openID string) (id uint, err error) {
 	if err == gorm.ErrRecordNotFound {
 		// 没有该用户记录，则需初始化该用户
 		user.Name = utils.GetUUID()
-		user.BusinessId = 0
+		user.BusinessId = 1
 		id, err = user.AddUser()
 	}
 	if err != nil {

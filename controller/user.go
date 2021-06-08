@@ -10,7 +10,9 @@ import (
 得到微信用户openID，进而进行用户登录
 */
 func WXLogin(ctx *gin.Context) {
-	code := ctx.Query("code")
+	// 报文格式：x-www-form-urlencoded
+	code := ctx.PostForm("code")
+	log.Println(code)
 	// 根据code获取openID和session_key
 	wxLoginResp, err := service.WXLogin(code)
 	if err != nil {
