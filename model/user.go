@@ -12,19 +12,46 @@ type User struct {
 	Name         string     `json:"name" gorm:"size:50"`
 	DealTimes    int        `json:"deal_times" gorm:"default:0;not null"`
 	BusinessId   uint       `json:"business_id" gorm:"not null";sql:"type:integer constraint fk_product_business REFERENCES business(id)"`
-	Business     Business   `json:"business";gorm:"ForeignKey:BusinessId;AssociationForeignKey:ID"`
+	Business     Business   `json:"business" gorm:"ForeignKey:BusinessId;AssociationForeignKey:ID"`
 	LastDealTime *time.Time `json:"last_deal_time"` // *time.Time允许空值
-	WXOpenId     string     `json:"wx_open_id" gorm:"not null;index:openid_idx"`
+	//SessionId     string    `json:"session_id" gorm:"not null;index:openid_idx"`
+	WXOpenId  string `json:"session_id" gorm:"not null;index:openid_idx"`
+	Nickname  string `json:"nickName" gorm:"size:50"`
+	AvatarUrl string `json:"avatarUrl"`
 }
 
 func (User) TableName() string {
 	return "user"
 }
 
+//// 第三方自定义Session
+//type CustomSession struct {
+//	OpenId 		string		`json:"openid"`
+//	SessionKey  string 		`json:"session_key"`
+//}
+
 /**
-根据WXOpenId索引User对象
+更新User记录
 */
-func (u *User) GetUserByOpenId() (user User, err error) {
+func (u *User) UpdateUser() (user User, err error) {
+	defer func() {
+		if err != nil && err != gorm.ErrRecordNotFound {
+			// 没有记录时不修改，否则service不好判断
+			err = fmt.Errorf("model.UpdateUser: %w", err)
+		}
+	}()
+	result := DB.Model(u).Updates(*u)
+	err = result.Error
+	if err != nil {
+		return User{}, err
+	}
+	return *u, nil
+}
+
+/**
+根据WXOpenId或者Id（候选键）索引User对象
+*/
+func (u *User) GetUserByID() (user User, err error) {
 	defer func() {
 		if err != nil && err != gorm.ErrRecordNotFound {
 			// 没有记录时不修改，否则service不好判断

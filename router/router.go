@@ -9,6 +9,7 @@ func Router() *gin.Engine {
 	r := gin.Default()
 	// 用户登录
 	r.POST("/auth/wxLogin", WXLogin)
+	r.POST("/auth/getUserInfo", GetUserInfo)
 	// 商家
 	r.POST("/business/add", AddBusiness)
 	r.GET("/business/getById", GetBusinessById)

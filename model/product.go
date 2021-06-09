@@ -8,7 +8,7 @@ import (
 
 type Product struct {
 	Id         uint      `json:"id" gorm:"primaryKey"`
-	Business   Business  `json:"business";gorm:"ForeignKey:BusinessId;AssociationForeignKey:ID"`
+	Business   Business  `json:"business" gorm:"ForeignKey:BusinessId;AssociationForeignKey:ID"`
 	BusinessId uint      `json:"business_id" gorm:"not null";sql:"type:integer constraint fk_product_business REFERENCES business(id)"`
 	Name       string    `json:"name" gorm:"size:100; not null"`
 	Info       string    `json:"info" gorm:"size:150; not null"`

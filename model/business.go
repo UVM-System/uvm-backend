@@ -67,7 +67,7 @@ func (b *Business) DeleteBusiness() (err error) {
 }
 
 // 更新商家
-func (b *Business) UpdateBusiness(name, info string) (business Business, err error) {
+func (b *Business) UpdateBusiness() (business Business, err error) {
 	defer func() {
 		if err != nil {
 			err = fmt.Errorf("model.UpdateBusiness: %w", err)
@@ -80,7 +80,7 @@ func (b *Business) UpdateBusiness(name, info string) (business Business, err err
 		return Business{}, err
 	}
 	// 更新数据
-	result = DB.Model(b).Updates(Business{Name: name, Info: info})
+	result = DB.Model(b).Updates(*b)
 	err = result.Error
 	if err != nil {
 		return Business{}, err

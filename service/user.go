@@ -11,7 +11,7 @@ import (
 	"uvm-backend/utils"
 )
 
-//// wx.getUserInfo得到的完整信息
+//// wx.getUserProfile得到的完整信息
 //type WXUser struct {
 //	UserInfo      NonSensitiveUser `json:"user_info"`
 //	RawData       string     `json:"raw_data"`
@@ -19,7 +19,7 @@ import (
 //	EncryptedData string     `json:"encrypted_data"`
 //	IV            string     `json:"iv"`
 //}
-//// WXUserInfo返回的不包含敏感信息的Non-Sensitive UserInfo
+//// WX UserInfo返回的不包含敏感信息的Non-Sensitive UserInfo
 //type NonSensitiveUser struct {
 //	OpenID		string		  `json:"open_id, omitempty"`
 //	Name        string		  `json:"nick_name"`
@@ -43,10 +43,30 @@ type WXLoginResp struct {
 }
 
 /**
-输入小程序发送的code，返回请求微信接口服务进而得到的openID, unionID, session-key和错误情况
-目前不需要微信的UserInfo
+根据用户ID返回用户昵称和头像
 */
-func WXLogin(code string) (w *WXLoginResp, err error) {
+func GetUserInfo(userId uint) (avatarUrl, nickName string, err error) {
+	defer func() {
+		if err != nil {
+			err = fmt.Errorf("service.GetUserInfo: %w", err)
+		}
+	}()
+	user := &model.User{
+		Id: userId,
+	}
+	u, err := user.GetUserByID()
+	if err != nil {
+		log.Println(err)
+		return "", "", err
+	}
+	// 已有该用户记录
+	return u.AvatarUrl, u.Nickname, nil
+}
+
+/**
+请求微信接口服务得到openID和sessionKey等敏感信息
+*/
+func GetWXSession(code string) (w *WXLoginResp, err error) {
 	defer func() {
 		if err != nil {
 			err = fmt.Errorf("service.WXLogin: %w", err)
@@ -82,9 +102,9 @@ func WXLogin(code string) (w *WXLoginResp, err error) {
 }
 
 /**
-用户登录
+根据OpenID创建或者更新用户，返回用户ID
 */
-func UserLogin(openID string) (id uint, err error) {
+func UserLogin(openID, avatarUrl, nickName string) (id uint, err error) {
 	defer func() {
 		if err != nil {
 			err = fmt.Errorf("service.UserLogin: %w", err)
@@ -93,17 +113,26 @@ func UserLogin(openID string) (id uint, err error) {
 	user := &model.User{
 		WXOpenId: openID,
 	}
-	u, err := user.GetUserByOpenId()
+	u, err := user.GetUserByID()
 	if err == gorm.ErrRecordNotFound {
 		// 没有该用户记录，则需初始化该用户
 		user.Name = utils.GetUUID()
 		user.BusinessId = 1
+		user.AvatarUrl = avatarUrl
+		user.Nickname = nickName
 		id, err = user.AddUser()
 	}
 	if err != nil {
 		log.Println(err)
 		return 0, err
 	}
-	// 已有该用户记录
+	// 已有该用户记录，更新用户
+	user.AvatarUrl = avatarUrl
+	user.Nickname = nickName
+	u, err = user.UpdateUser()
+	if err != nil {
+		log.Println(err)
+		return 0, err
+	}
 	return u.Id, nil
 }

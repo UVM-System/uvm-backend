@@ -71,9 +71,11 @@ func UpdateBusiness(id uint, name string, info string) (UpdatedName, UpdatedInfo
 		}
 	}()
 	business := &model.Business{
-		ID: id,
+		ID:   id,
+		Name: name,
+		Info: info,
 	}
-	b, err := business.UpdateBusiness(name, info)
+	b, err := business.UpdateBusiness()
 	if err != nil {
 		log.Println(err)
 		return "", "", time.Now(), err

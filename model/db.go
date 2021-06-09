@@ -4,6 +4,9 @@ import (
 	"uvm-backend/database"
 )
 
+/**
+MySQL
+*/
 var DB = database.GetDB()
 
 func init() {
