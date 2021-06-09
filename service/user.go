@@ -72,8 +72,8 @@ func GetWXSession(code string) (w *WXLoginResp, err error) {
 			err = fmt.Errorf("service.WXLogin: %w", err)
 		}
 	}()
-	appId := "wx7246396bd244fb02"
-	appSecret := "ec6c4b6cdbdf81250cf1bc2f9e2e8860"
+	appId := ""
+	appSecret := ""
 	url := "https://api.weixin.qq.com/sns/jscode2session?appid=%s&secret=%s&js_code=%s&grant_type=authorization_code"
 	// 合成url, appId和appSecret可以直接得到
 	url = fmt.Sprintf(url, appId, appSecret, code)
