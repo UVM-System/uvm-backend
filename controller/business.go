@@ -6,12 +6,15 @@ import (
 	"uvm-backend/service"
 )
 
+/**
+根据商家ID，获取其信息
+*/
 func GetBusinessById(ctx *gin.Context) {
 	var data struct {
 		ID uint
 	}
 	ctx.ShouldBindJSON(&data)
-	name, info, t, err := service.GetBusinessById(data.ID)
+	name, info, t, productList, err := service.GetBusinessById(data.ID)
 	if err != nil {
 		log.Println(err)
 		ErrorResponse(ctx, err)
@@ -21,6 +24,7 @@ func GetBusinessById(ctx *gin.Context) {
 		"name":          name,
 		"info":          info,
 		"register time": t,
+		"product list":  productList,
 	})
 }
 

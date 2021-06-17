@@ -7,7 +7,7 @@ import (
 	"uvm-backend/model"
 )
 
-func GetBusinessById(id uint) (name, info string, t time.Time, err error) {
+func GetBusinessById(id uint) (name, info string, t time.Time, productList []model.Product, err error) {
 	defer func() {
 		if err != nil {
 			err = fmt.Errorf("service.GetBusinessById: %w", err)
@@ -19,9 +19,9 @@ func GetBusinessById(id uint) (name, info string, t time.Time, err error) {
 	b, err := business.GetBusinessById()
 	if err != nil {
 		log.Println(err)
-		return "", "", time.Now(), err
+		return "", "", time.Now(), nil, err
 	}
-	return b.Name, b.Info, b.RegisterTime, nil
+	return b.Name, b.Info, b.RegisterTime, b.Products, nil
 }
 
 // 增加商家

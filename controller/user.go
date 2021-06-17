@@ -11,7 +11,12 @@ import (
 用户保持登录态；根据用户ID获取avatarUrl和nickName
 */
 func GetUserInfo(ctx *gin.Context) {
-	userId, err := strconv.Atoi(ctx.PostForm("userId"))
+	userId, err := strconv.Atoi(ctx.Query("userId"))
+	if err != nil {
+		log.Println(err)
+		ErrorResponse(ctx, err)
+		return
+	}
 	log.Println(userId)
 	avatarUrl, nickName, err := service.GetUserInfo(uint(userId))
 	if err != nil {

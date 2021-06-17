@@ -11,11 +11,11 @@ type User struct {
 	Id           uint       `json:"id" gorm:"primaryKey"`
 	Name         string     `json:"name" gorm:"size:50"`
 	DealTimes    int        `json:"deal_times" gorm:"default:0;not null"`
-	BusinessId   uint       `json:"business_id" gorm:"not null";sql:"type:integer constraint fk_product_business REFERENCES business(id)"`
+	BusinessId   uint       `json:"business_id" gorm:"not null" sql:"type:integer constraint fk_product_business REFERENCES business(id)"`
 	Business     Business   `json:"business" gorm:"ForeignKey:BusinessId;AssociationForeignKey:ID"`
 	LastDealTime *time.Time `json:"last_deal_time"` // *time.Time允许空值
 	//SessionId     string    `json:"session_id" gorm:"not null;index:openid_idx"`
-	WXOpenId  string `json:"session_id" gorm:"not null;index:openid_idx"`
+	WXOpenId  string `json:"open_id" gorm:"not null;index:openid_idx"`
 	Nickname  string `json:"nickName" gorm:"size:50"`
 	AvatarUrl string `json:"avatarUrl"`
 }
@@ -40,6 +40,7 @@ func (u *User) UpdateUser() (user User, err error) {
 			err = fmt.Errorf("model.UpdateUser: %w", err)
 		}
 	}()
+	//result := DB.Debug().Save(u)
 	result := DB.Model(u).Updates(*u)
 	err = result.Error
 	if err != nil {

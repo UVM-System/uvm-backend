@@ -7,10 +7,12 @@ import (
 )
 
 type Business struct {
-	ID           uint      `json:"id";gorm:"primaryKey"`
+	ID           uint      `json:"id" gorm:"primaryKey"`
 	Name         string    `json:"name" gorm:"size:50"`
 	Info         string    `json:"info"`
 	RegisterTime time.Time `json:"register_time"`
+	// Business和Products为一对多关系
+	Products []Product `gorm:"ForeignKey:BusinessId; constraint:OnUpdate:CASCADE,OnDelete:SET NULL;"`
 }
 
 func (Business) TableName() string {
@@ -27,7 +29,9 @@ func (b *Business) GetBusinessById() (business Business, err error) {
 			err = fmt.Errorf("model.GetBusinessById: %w", err)
 		}
 	}()
-	result := DB.First(&business, b.ID)
+	// 预加载产品列表和对应图片
+	result := DB.Preload("Products").Preload("Products.Image").First(&business, b.ID)
+	//result := DB.First(&business, b.ID)
 	err = result.Error
 	if err != nil {
 		//log.Println(err)
@@ -58,7 +62,13 @@ func (b *Business) DeleteBusiness() (err error) {
 			err = fmt.Errorf("model.DeleteBusiness: %w", err)
 		}
 	}()
-	result := DB.Delete(b)
+	// 判断数据库中是否有这个ID
+	result := DB.First(&Business{}, b.ID)
+	err = result.Error
+	if err != nil {
+		return err
+	}
+	result = DB.Delete(b)
 	err = result.Error
 	if err != nil {
 		return err

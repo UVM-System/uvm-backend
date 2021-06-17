@@ -7,7 +7,7 @@ import (
 
 func ErrorResponse(ctx *gin.Context, err error) {
 	ctx.JSON(http.StatusBadRequest, gin.H{
-		"code":    0,
+		"code":    -1,
 		"message": err.Error(),
 	})
 }
