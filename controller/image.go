@@ -12,10 +12,9 @@ import (
 */
 func Download(ctx *gin.Context) {
 	// *匹配不到./……手动加上（
-	filePath := "./" + ctx.Param("path")
+	filePath := ctx.Query("url")
 	fileName := path.Base(filePath)
-	log.Println(filePath)
-	log.Println(fileName)
+	log.Println("controller.Download:\t", "filePath:\t", filePath, "fileName:\t", fileName)
 	ctx.Writer.Header().Add("Content-Disposition", fmt.Sprintf("attachment;filename=%s", fileName))
 	ctx.Writer.Header().Add("Content-Type", "application/octet-stream")
 	ctx.File(filePath)

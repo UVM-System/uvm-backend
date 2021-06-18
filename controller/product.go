@@ -5,6 +5,7 @@ import (
 	"log"
 	"strconv"
 	"uvm-backend/service"
+	"uvm-backend/utils"
 )
 
 /**
@@ -56,19 +57,18 @@ func AddProduct(ctx *gin.Context) {
 	englishName := ctx.PostForm("EnglishName")
 	info := ctx.PostForm("Info")
 	price, _ := strconv.ParseFloat(ctx.PostForm("Price"), 64)
-	log.Println("BusinessId: ", businessId, " Name: ", name, "EnglishName: ", englishName, " Info: ", info, " Price: ", price)
 	// 读取文件
-	file, header, err := ctx.Request.FormFile("upload")
+	_, header, err := ctx.Request.FormFile("upload")
 	if err != nil {
 		log.Println(err)
 		ErrorResponse(ctx, err)
 		return
 	}
 	filename := header.Filename
-	log.Println(file, err, filename)
-
-	// 把文件存入/upload/img/filename路径下
-	filePath := "./upload/img/" + filename
+	// 把文件存入/upload/img/EnglishName.扩展名 路径下
+	_, suffix := utils.GetFileNameAndSuffix(filename)
+	filePath := "./upload/img/" + englishName + suffix
+	log.Println("controller.AddProduct:\t", "uploadFileName:\t", filename, "saveFilePath:\t", filePath)
 	err = ctx.SaveUploadedFile(header, filePath)
 	if err != nil {
 		log.Println(err)
@@ -83,6 +83,7 @@ func AddProduct(ctx *gin.Context) {
 		return
 	}
 	// 将商品信息存入数据库
+	log.Println("controller.AddProduct:\t", "BusinessId:\t", businessId, " Name:\t", name, "EnglishName:\t", englishName, " Info:\t", info, " Price:\t", price, "imgId:\t", imgId)
 	productId, err := service.AddProduct(uint(businessId), name, englishName, info, price, imgId)
 	if err != nil {
 		log.Println(err)
@@ -106,19 +107,18 @@ func UpdateProduct(ctx *gin.Context) {
 	englishName := ctx.PostForm("EnglishName")
 	info := ctx.PostForm("Info")
 	price, _ := strconv.ParseFloat(ctx.PostForm("Price"), 64)
-	log.Println("id: ", id, " BusinessId: ", businessId, " Name: ", name, "EnglishName: ", englishName, " Info: ", info, " Price: ", price)
 	// 读取文件
-	file, header, err := ctx.Request.FormFile("upload")
+	_, header, err := ctx.Request.FormFile("upload")
 	if err != nil {
 		log.Println(err)
 		ErrorResponse(ctx, err)
 		return
 	}
 	filename := header.Filename
-	log.Println(file, err, filename)
-
-	// 把文件存入/upload/img/filename路径下
-	filePath := "./upload/img/" + filename
+	// 把文件存入/upload/img/EnglishName.扩展名 路径下
+	_, suffix := utils.GetFileNameAndSuffix(filename)
+	filePath := "./upload/img/" + englishName + suffix
+	log.Println("controller.UpdateProduct:\t", "uploadFileName:\t", filename, "saveFilePath:\t", filePath)
 	err = ctx.SaveUploadedFile(header, filePath)
 	if err != nil {
 		log.Println(err)
@@ -133,6 +133,7 @@ func UpdateProduct(ctx *gin.Context) {
 		return
 	}
 	// 更新数据库中的商品信息
+	log.Println("controller.UpdateProduct:\t", "id:\t", id, " BusinessId:\t", businessId, " Name:\t", name, "EnglishName:\t", englishName, "Info:\t", info, "Price:\t", price, "imgId:\t", imgId)
 	productId, err := service.UpdateProduct(uint(id), uint(businessId), name, englishName, info, price, imgId)
 	if err != nil {
 		log.Println(err)

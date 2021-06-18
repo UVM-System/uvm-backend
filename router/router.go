@@ -21,7 +21,7 @@ func Router() *gin.Engine {
 	r.POST("/product/update", UpdateProduct)
 	r.GET("/product/getInfoByEN", GetProductInfoByEN)
 	// 图片下载
-	r.GET("product/image/download/*path", Download)
+	r.GET("product/image/download", Download)
 
 	return r
 }
