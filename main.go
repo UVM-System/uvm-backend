@@ -60,8 +60,8 @@ func initDB() {
 	for _, row := range rows {
 		englishName := row[0]
 		name := row[1]
-		info := row[2]
-		priceStr := row[3]
+		info := row[1]
+		priceStr := "3"
 		price, err := strconv.ParseFloat(priceStr, 64)
 		if err != nil {
 			log.Fatal(err)
