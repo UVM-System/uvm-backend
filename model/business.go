@@ -30,7 +30,7 @@ func (b *Business) GetBusinessById() (business Business, err error) {
 		}
 	}()
 	// 预加载产品列表和对应图片
-	result := DB.Preload("Products").Preload("Products.Image").First(&business, b.ID)
+	result := DB.Preload("Products").First(&business, b.ID)
 	//result := DB.First(&business, b.ID)
 	err = result.Error
 	if err != nil {

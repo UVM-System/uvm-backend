@@ -9,19 +9,15 @@ import (
 type Product struct {
 	Id          uint      `json:"id" gorm:"primaryKey"`
 	BusinessId  uint      `json:"business_id"`
+	MachineId   uint      `json:"machine_id"`
 	Name        string    `json:"name" gorm:"size:100; not null"`
 	EnglishName string    `json:"english_name" gorm:"size:100; not null"`
 	Info        string    `json:"info" gorm:"size:150; not null"`
 	Number      int       `json:"number" gorm:"not null"`
 	UpdateTime  time.Time `json:"update_time"`
 	Price       float64   `json:"price" gorm:"not null"`
-	Image       Image     `json:"image" gorm:"ForeignKey:ImageID;AssociationForeignKey:ID"`
-	ImageID     uint      `json:"image_id" gorm:"not null" sql:"type:integer constraint fk_product_image REFERENCES image(id)"`
+	ImageUrl    string    `json:"image_url"`
 }
-
-//Business   Business  `json:"business" gorm:"ForeignKey:BusinessId;AssociationForeignKey:ID"`
-//BusinessId uint      `json:"business_id" gorm:"not null";sql:"type:integer constraint fk_product_business REFERENCES business(id) on delete cascade on update cascade"`
-// Product和Image是一对一关系；
 
 func (Product) TableName() string {
 	return "product"
@@ -36,7 +32,7 @@ func (p *Product) GetProductByStructQuery() (product Product, err error) {
 			err = fmt.Errorf("model.GetProductByOneField: %w", err)
 		}
 	}()
-	result := DB.Preload("Image").Where(p).First(&product)
+	result := DB.Where(p).First(&product)
 	if result.Error != nil {
 		log.Println(result.Error)
 		return Product{}, result.Error

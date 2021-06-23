@@ -27,7 +27,7 @@ func GetProductInfoByEN(englishName string) (p model.Product, err error) {
 /**
 增加商品
 */
-func AddProduct(businessId uint, name string, englishName string, info string, price float64, imgId uint) (id uint, err error) {
+func AddProduct(businessId uint, name string, englishName string, info string, price float64, imageUrl string) (id uint, err error) {
 	defer func() {
 		if err != nil {
 			err = fmt.Errorf("service.AddProduct: %w", err)
@@ -41,7 +41,7 @@ func AddProduct(businessId uint, name string, englishName string, info string, p
 		Number:      0,
 		UpdateTime:  time.Now(),
 		Price:       price,
-		ImageID:     imgId,
+		ImageUrl:    imageUrl,
 	}
 	id, err = product.AddProduct()
 	if err != nil {
@@ -54,7 +54,7 @@ func AddProduct(businessId uint, name string, englishName string, info string, p
 /**
 更新商品
 */
-func UpdateProduct(id uint, businessId uint, name string, englishName string, info string, price float64, imgId uint) (productId uint, err error) {
+func UpdateProduct(id uint, businessId uint, name string, englishName string, info string, price float64, imageUrl string) (productId uint, err error) {
 	defer func() {
 		if err != nil {
 			err = fmt.Errorf("service.UpdateProduct: %w", err)
@@ -68,7 +68,7 @@ func UpdateProduct(id uint, businessId uint, name string, englishName string, in
 		Info:        info,
 		UpdateTime:  time.Now(),
 		Price:       price,
-		ImageID:     imgId,
+		ImageUrl:    imageUrl,
 	}
 	productId, err = product.UpdateProduct()
 	if err != nil {

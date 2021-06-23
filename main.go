@@ -15,10 +15,13 @@ import (
 
 /**
 手动添加数据：1个商家，1个售货柜，100类商品图像及信息
-！！重复执行会添加重复数据！！
 */
 func initDB() {
-	//// 1个商家
+	if _, _, _, _, err := service.GetBusinessById(1); err == nil {
+		//	已有商家，不必再进行初始化
+		return
+	}
+	// 1个商家
 	log.Println("初始化商家……")
 	businessId, err := service.AddBusiness("无人零售柜", "数据初始化测试")
 	if err != nil {
@@ -27,28 +30,13 @@ func initDB() {
 	log.Println("商家ID	", businessId)
 	//// 1个售货柜，售货柜添加接口还没写
 
-	//// 100类商品图像
-	// 获取图像文件名list
+	//// 100类商品
+	// 获取图像文件名list；图像按商品英文名命名
 	imgDir := "./upload/img/"
 	imgList, err := utils.ReadDir(imgDir)
 	if err != nil {
 		log.Fatal(err)
 	}
-	// 图片id和path Map
-	imgMap := make(map[string]uint)
-	log.Println("初始化商品图像……")
-	for _, fileName := range imgList {
-		imgPath := imgDir + fileName.Name()
-		imgId, err := service.AddImage(imgPath)
-		if err != nil {
-			log.Fatal(err)
-		}
-		englishName, _ := utils.GetFileNameAndSuffix(fileName.Name())
-		// 英文名和图像id映射
-		imgMap[englishName] = imgId
-		log.Println(imgId, "	", imgPath)
-	}
-	//// 100类商品信息
 	// 从excel文件的Sheet1中读取，列名：englishName, name, info, price
 	log.Println("初始化商品信息……")
 	file, err := excelize.OpenFile("./bev_name.xlsx")
@@ -60,14 +48,24 @@ func initDB() {
 	for _, row := range rows {
 		englishName := row[0]
 		name := row[1]
-		info := row[1]
-		priceStr := "3"
+		info := row[2]
+		priceStr := row[3]
 		price, err := strconv.ParseFloat(priceStr, 64)
 		if err != nil {
 			log.Fatal(err)
 		}
-		productId, err := service.AddProduct(businessId, name, englishName, info, price, imgMap[englishName])
-		log.Println(productId, "	", businessId, "	", name, "	  ", englishName, "  	", info, "	  ", price, "	 ", imgMap[englishName])
+		var imageUrl string
+		// 从图像列表中找到对应图像路径
+		for _, item := range imgList {
+			fileFullName := item.Name()
+			fileName, _ := utils.GetFileNameAndSuffix(fileFullName)
+			if fileName == englishName {
+				imageUrl = imgDir + fileFullName
+				break
+			}
+		}
+		productId, err := service.AddProduct(businessId, name, englishName, info, price, imageUrl)
+		log.Println(productId, "	", businessId, "	", name, "	  ", englishName, "  	", info, "	  ", price, "	 ", imageUrl)
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -76,7 +74,7 @@ func initDB() {
 }
 
 func main() {
-	//initDB() // 重复执行会添加重复数据！
+	initDB()
 	conf := config.GetConfig()
 	if err := router.Router().Run(":" + conf.PORT); err != nil {
 		log.Fatal(err)

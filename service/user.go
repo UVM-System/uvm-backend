@@ -121,7 +121,14 @@ func UserLogin(openID, avatarUrl, nickName string) (id uint, err error) {
 		user.AvatarUrl = avatarUrl
 		user.Nickname = nickName
 		id, err = user.AddUser()
+		if err != nil {
+			// 添加用户出现错误
+			log.Println(err)
+			return 0, err
+		}
+		return id, err
 	}
+	// 查询出现其他错误
 	if err != nil {
 		log.Println(err)
 		return 0, err
@@ -130,6 +137,7 @@ func UserLogin(openID, avatarUrl, nickName string) (id uint, err error) {
 	u.AvatarUrl = avatarUrl
 	u.Nickname = nickName
 	u, err = u.UpdateUser()
+	// 更新出现错误
 	if err != nil {
 		log.Println(err)
 		return 0, err

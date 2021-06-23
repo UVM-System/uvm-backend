@@ -1,8 +1,10 @@
 package controller
 
 import (
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"log"
+	"path"
 	"strconv"
 	"uvm-backend/service"
 	"uvm-backend/utils"
@@ -75,16 +77,9 @@ func AddProduct(ctx *gin.Context) {
 		ErrorResponse(ctx, err)
 		return
 	}
-	// 将图片信息存入数据库
-	imgId, err := service.AddImage(filePath)
-	if err != nil {
-		log.Println(err)
-		ErrorResponse(ctx, err)
-		return
-	}
 	// 将商品信息存入数据库
-	log.Println("controller.AddProduct:\t", "BusinessId:\t", businessId, " Name:\t", name, "EnglishName:\t", englishName, " Info:\t", info, " Price:\t", price, "imgId:\t", imgId)
-	productId, err := service.AddProduct(uint(businessId), name, englishName, info, price, imgId)
+	log.Println("controller.AddProduct:\t", "BusinessId:\t", businessId, " Name:\t", name, "EnglishName:\t", englishName, " Info:\t", info, " Price:\t", price, "imgUrl:\t", filePath)
+	productId, err := service.AddProduct(uint(businessId), name, englishName, info, price, filePath)
 	if err != nil {
 		log.Println(err)
 		ErrorResponse(ctx, err)
@@ -125,16 +120,9 @@ func UpdateProduct(ctx *gin.Context) {
 		ErrorResponse(ctx, err)
 		return
 	}
-	// 将图片信息存入数据库
-	imgId, err := service.AddImage(filePath)
-	if err != nil {
-		log.Println(err)
-		ErrorResponse(ctx, err)
-		return
-	}
 	// 更新数据库中的商品信息
-	log.Println("controller.UpdateProduct:\t", "id:\t", id, " BusinessId:\t", businessId, " Name:\t", name, "EnglishName:\t", englishName, "Info:\t", info, "Price:\t", price, "imgId:\t", imgId)
-	productId, err := service.UpdateProduct(uint(id), uint(businessId), name, englishName, info, price, imgId)
+	log.Println("controller.UpdateProduct:\t", "id:\t", id, " BusinessId:\t", businessId, " Name:\t", name, "EnglishName:\t", englishName, "Info:\t", info, "Price:\t", price, "imgUrl:\t", filePath)
+	productId, err := service.UpdateProduct(uint(id), uint(businessId), name, englishName, info, price, filePath)
 	if err != nil {
 		log.Println(err)
 		ErrorResponse(ctx, err)
@@ -144,4 +132,18 @@ func UpdateProduct(ctx *gin.Context) {
 		"message": "商品更新成功",
 		"id":      productId,
 	})
+}
+
+/**
+服务器端商品图片下载接口
+*/
+func Download(ctx *gin.Context) {
+	// *匹配不到./……手动加上（
+	filePath := ctx.Query("url")
+	fileName := path.Base(filePath)
+	log.Println("controller.Download:\t", "filePath:\t", filePath, "fileName:\t", fileName)
+	ctx.Writer.Header().Add("Content-Disposition", fmt.Sprintf("attachment;filename=%s", fileName))
+	ctx.Writer.Header().Add("Content-Type", "application/octet-stream")
+	ctx.File(filePath)
+	return
 }
