@@ -6,17 +6,20 @@ import (
 	"time"
 )
 
+/**
+某个商家的产品，与具体售货柜的商品Goods为一对多关系
+*/
 type Product struct {
-	Id          uint      `json:"id" gorm:"primaryKey"`
+	Id          uint      `json:"id" gorm:"primaryKey"` // 产品编号
 	BusinessId  uint      `json:"business_id"`
-	MachineId   uint      `json:"machine_id"`
 	Name        string    `json:"name" gorm:"size:100; not null"`
 	EnglishName string    `json:"english_name" gorm:"size:100; not null"`
 	Info        string    `json:"info" gorm:"size:150; not null"`
 	Number      int       `json:"number" gorm:"not null"`
-	UpdateTime  time.Time `json:"update_time"`
 	Price       float64   `json:"price" gorm:"not null"`
 	ImageUrl    string    `json:"image_url"`
+	Goods       []Goods   `gorm:"ForeignKey:ProductId; constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
+	UpdateTime  time.Time `json:"update_time"`
 }
 
 func (Product) TableName() string {
@@ -24,7 +27,7 @@ func (Product) TableName() string {
 }
 
 /**
-根据结构体查询条件查找一个商品（只适用于等号匹配）
+根据结构体查询条件查找一个商品，只适用于等号匹配
 */
 func (p *Product) GetProductByStructQuery() (product Product, err error) {
 	defer func() {
@@ -32,7 +35,7 @@ func (p *Product) GetProductByStructQuery() (product Product, err error) {
 			err = fmt.Errorf("model.GetProductByOneField: %w", err)
 		}
 	}()
-	result := DB.Where(p).First(&product)
+	result := DB.Where(p).Preload("Goods").First(&product)
 	if result.Error != nil {
 		log.Println(result.Error)
 		return Product{}, result.Error

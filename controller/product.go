@@ -28,28 +28,6 @@ func GetProductInfoByEN(ctx *gin.Context) {
 }
 
 /**
-返回某商家的所有产品列表
-*/
-func GetProductList(ctx *gin.Context) {
-	businessId, err := strconv.Atoi(ctx.Query("BusinessId"))
-	if err != nil {
-		log.Println(err)
-		ErrorResponse(ctx, err)
-		return
-	}
-	_, _, _, productList, err := service.GetBusinessById(uint(businessId)) // 获取该商家的产品列表
-	if err != nil {
-		log.Println(err)
-		ErrorResponse(ctx, err)
-		return
-	}
-	SuccessResponse(ctx, gin.H{
-		"message":      "读取商品列表成功",
-		"product_list": productList,
-	})
-}
-
-/**
 增加商品
 */
 func AddProduct(ctx *gin.Context) {
@@ -92,7 +70,7 @@ func AddProduct(ctx *gin.Context) {
 }
 
 /**
-更新商品
+更新商品基本信息：name，englishName，info, price
 */
 func UpdateProduct(ctx *gin.Context) {
 	// 读取form data

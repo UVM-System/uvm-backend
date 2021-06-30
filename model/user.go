@@ -14,11 +14,13 @@ type User struct {
 	BusinessId   uint       `json:"business_id" gorm:"not null" sql:"type:integer constraint fk_product_business REFERENCES business(id)"`
 	Business     Business   `json:"business" gorm:"ForeignKey:BusinessId;AssociationForeignKey:ID"`
 	LastDealTime *time.Time `json:"last_deal_time"` // *time.Time允许空值
-	//SessionId     string    `json:"session_id" gorm:"not null;index:openid_idx"`
-	WXOpenId  string `json:"open_id" gorm:"not null;index:openid_idx"`
-	Nickname  string `json:"nickName" gorm:"size:50"`
-	AvatarUrl string `json:"avatarUrl"`
+	WXOpenId     string     `json:"open_id" gorm:"not null;index:openid_idx"`
+	Nickname     string     `json:"nickName" gorm:"size:50"`
+	AvatarUrl    string     `json:"avatarUrl"`
+	Orders       []Order    `gorm:"ForeignKey:UserId; constraint:OnUpdate:CASCADE,OnDelete:SET NULL;"`
 }
+
+//SessionId     string    `json:"session_id" gorm:"not null;index:openid_idx"`
 
 func (User) TableName() string {
 	return "user"

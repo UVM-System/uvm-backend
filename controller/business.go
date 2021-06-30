@@ -3,31 +3,31 @@ package controller
 import (
 	"github.com/gin-gonic/gin"
 	"log"
+	"strconv"
 	"uvm-backend/service"
 )
 
 /**
-根据商家ID，获取其信息
+根据商家ID，获取其下商品信息
 */
-func GetBusinessById(ctx *gin.Context) {
-	var data struct {
-		ID uint
+func GetProductsByBusinessId(ctx *gin.Context) {
+	businessId, err := strconv.Atoi(ctx.Query("BusinessId"))
+	if err != nil {
+		log.Println(err)
+		ErrorResponse(ctx, err)
+		return
 	}
-	ctx.ShouldBindJSON(&data)
-	name, info, t, productList, err := service.GetBusinessById(data.ID)
+	_, _, _, productList, err := service.GetBusinessProductById(uint(businessId))
 	if err != nil {
 		log.Println(err)
 		ErrorResponse(ctx, err)
 		return
 	}
 	SuccessResponse(ctx, gin.H{
-		"name":          name,
-		"info":          info,
-		"register time": t,
-		"product list":  productList,
+		"message":      "读取商家商品列表成功",
+		"product_list": productList,
 	})
 }
-
 func AddBusiness(ctx *gin.Context) {
 	var data struct {
 		Name string

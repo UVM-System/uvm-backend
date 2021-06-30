@@ -34,5 +34,8 @@ func init() {
 	if err != nil {
 		panic(err)
 	}
-
+	err = DB.AutoMigrate(&Goods{})
+	if err != nil {
+		panic(err)
+	}
 }

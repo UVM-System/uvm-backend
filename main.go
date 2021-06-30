@@ -17,7 +17,7 @@ import (
 手动添加数据：1个商家，1个售货柜，100类商品图像及信息
 */
 func initDB() {
-	if _, _, _, _, err := service.GetBusinessById(1); err == nil {
+	if _, _, _, _, err := service.GetBusinessProductById(1); err == nil {
 		//	已有商家，不必再进行初始化
 		return
 	}
@@ -28,9 +28,19 @@ func initDB() {
 		log.Fatal(err)
 	}
 	log.Println("商家ID	", businessId)
-	//// 1个售货柜，售货柜添加接口还没写
-
-	//// 100类商品
+	//// 2个售货柜
+	log.Println("初始化售货柜……")
+	machineId, err := service.AddMachine(businessId, "哈工大荔园10栋", 1)
+	if err != nil {
+		log.Fatal(err)
+	}
+	log.Println("1号售货柜ID  ", machineId)
+	machineId2, err := service.AddMachine(businessId, "哈工大荔园9栋", 1)
+	if err != nil {
+		log.Fatal(err)
+	}
+	log.Println("2号售货柜ID  ", machineId2)
+	//// 100类货品，每个货品在每个售货柜中各有100件库存
 	// 获取图像文件名list；图像按商品英文名命名
 	imgDir := "./upload/img/"
 	imgList, err := utils.ReadDir(imgDir)
@@ -65,7 +75,10 @@ func initDB() {
 			}
 		}
 		productId, err := service.AddProduct(businessId, name, englishName, info, price, imageUrl)
-		log.Println(productId, "	", businessId, "	", name, "	  ", englishName, "  	", info, "	  ", price, "	 ", imageUrl)
+		goodsId, err := service.AddGoods(machineId, productId, 100)   // 每个商品初始数量为100
+		goodsId2, err := service.AddGoods(machineId2, productId, 100) // 每个商品初始数量为100
+		log.Println(goodsId, "	 ", productId, "	", businessId, "	", machineId, "		", name, "	  ", englishName, "  	", info, "	  ", price, "	 ", imageUrl)
+		log.Println(goodsId2, "	 ", productId, "	", businessId, "	", machineId2, "		", name, "	  ", englishName, "  	", info, "	  ", price, "	 ", imageUrl)
 		if err != nil {
 			log.Fatal(err)
 		}

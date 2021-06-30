@@ -11,27 +11,29 @@ type Business struct {
 	Name         string    `json:"name" gorm:"size:50"`
 	Info         string    `json:"info"`
 	RegisterTime time.Time `json:"register_time"`
-	// Business和Products为一对多关系
-	Products []Product `gorm:"ForeignKey:BusinessId; constraint:OnUpdate:CASCADE,OnDelete:SET NULL;"`
+	Products     []Product `gorm:"ForeignKey:BusinessId; constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
+	Machines     []Machine `gorm:"ForeignKey:BusinessId; constraint:OnUpdate:CASCADE, OnDelete:SET NULL;"`
+	Orders       []Order   `gorm:"ForeignKey:BusinessId; constraint:OnUpdate:CASCADE,OnDelete:SET NULL;"`
 }
+
+// Business和Products为一对多
+// Business和Machine为一对多
 
 func (Business) TableName() string {
 	return "business"
 }
 
-// 根据商家 id 查询商家
-// @param id uint "商家id"
-// @param info string "商家信息"
-// @return id uint "商家id"
-func (b *Business) GetBusinessById() (business Business, err error) {
+/**
+根据商家id查询商家，只预加载Product表
+*/
+func (b *Business) GetBusinessProductById() (business Business, err error) {
 	defer func() {
 		if err != nil {
 			err = fmt.Errorf("model.GetBusinessById: %w", err)
 		}
 	}()
-	// 预加载产品列表和对应图片
-	result := DB.Preload("Products").First(&business, b.ID)
-	//result := DB.First(&business, b.ID)
+	// 预加载产品
+	result := DB.Preload("Products").Preload("Products.Goods").First(&business, b.ID)
 	err = result.Error
 	if err != nil {
 		//log.Println(err)

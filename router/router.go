@@ -7,21 +7,30 @@ import (
 
 func Router() *gin.Engine {
 	r := gin.Default()
-	// 用户
+	//// 用户
+	//登录
 	r.POST("/user/wxLogin", WXLogin)
 	r.GET("/user/getUserInfo", GetUserInfo)
-	// 商家
+	// 订单
+	r.POST("/user/order/add", AddOrder)
+	r.GET("/user/order/orderList", GetOrdersByUserId)
+	// 商品
+	r.GET("/user/machine/goodsList", GetGoodsByMachineId)
+
+	//// 商家
 	r.POST("/business/add", AddBusiness)
-	r.GET("/business/getById", GetBusinessById)
 	r.POST("/business/delete", DeleteBusiness)
 	r.POST("/business/update", UpdateBusiness)
 	// 商品
-	r.GET("/product/productList", GetProductList)
-	r.POST("/product/add", AddProduct)
-	r.POST("/product/update", UpdateProduct)
-	r.GET("/product/getInfoByEN", GetProductInfoByEN)
-	// 图片下载
-	r.GET("product/image/download", Download)
+	r.GET("/business/product/productList", GetProductsByBusinessId)
+	r.POST("/business/product/add", AddProduct)
+	r.POST("/business/product/update", UpdateProduct)
+	r.GET("/business/product/getInfoByEN", GetProductInfoByEN)
+	// 售货柜
+	r.POST("/business/machine/add", AddMachine)
+
+	//// 商品图片下载
+	r.GET("/product/image/download", Download)
 
 	return r
 }
