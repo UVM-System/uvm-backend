@@ -26,6 +26,9 @@ func Router() *gin.Engine {
 	r.POST("/business/product/add", AddProduct)
 	r.POST("/business/product/update", UpdateProduct)
 	r.GET("/business/product/getInfoByEN", GetProductInfoByEN)
+	// 订单
+	r.GET("/business/order/orderList", GetOrdersByDateNStatus)
+	r.GET("/business/order/detail", GetOrderByOrderNumber)
 	// 售货柜
 	r.POST("/business/machine/add", AddMachine)
 
