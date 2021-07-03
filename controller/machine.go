@@ -8,6 +8,51 @@ import (
 )
 
 /**
+查询Machine某个月份的商品TOP10排行榜
+*/
+func GetMonthlyRanking(ctx *gin.Context) {
+	machineId, err := strconv.Atoi(ctx.Query("MachineId"))
+	if err != nil {
+		log.Println(err)
+		ErrorResponse(ctx, err)
+		return
+	}
+	date := ctx.Query("Date") // 2021-07
+	rankings, err := service.GetMonthlyRanking(uint(machineId), date)
+	if err != nil {
+		log.Println(err)
+		ErrorResponse(ctx, err)
+		return
+	}
+	SuccessResponse(ctx, gin.H{
+		"message":  "获取月份排行榜成功",
+		"rankings": rankings,
+	})
+}
+
+/**
+根据商家Id查询Machine列表
+*/
+func GetMachinesByBusinessId(ctx *gin.Context) {
+	businessId, err := strconv.Atoi(ctx.Query("BusinessId"))
+	if err != nil {
+		log.Println(err)
+		ErrorResponse(ctx, err)
+		return
+	}
+	machines, err := service.GetMachinesByBusinessId(uint(businessId))
+	if err != nil {
+		log.Println(err)
+		ErrorResponse(ctx, err)
+		return
+	}
+	SuccessResponse(ctx, gin.H{
+		"message":  "售货柜列表查询成功",
+		"machines": machines,
+	})
+}
+
+/**
 增加售货柜
 */
 func AddMachine(ctx *gin.Context) {
@@ -27,27 +72,4 @@ func AddMachine(ctx *gin.Context) {
 		"message": "售货柜增加成功",
 		"id":      id,
 	})
-}
-
-/**
-根据售货柜Id，获取商品列表
-*/
-func GetGoodsByMachineId(ctx *gin.Context) {
-	machineId, err := strconv.Atoi(ctx.Query("MachineId"))
-	if err != nil {
-		log.Println(err)
-		ErrorResponse(ctx, err)
-		return
-	}
-	_, _, goodsInfoList, _, err := service.GetMachineGoodsById(uint(machineId))
-	if err != nil {
-		log.Println(err)
-		ErrorResponse(ctx, err)
-		return
-	}
-	SuccessResponse(ctx, gin.H{
-		"message":    "读取售货柜商品列表成功",
-		"goods_list": goodsInfoList,
-	})
-
 }

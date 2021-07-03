@@ -3,19 +3,67 @@ package service
 import (
 	"fmt"
 	"log"
+	"strconv"
+	"time"
 	"uvm-backend/model"
+	"uvm-backend/utils"
 )
 
-type GoodsInfo struct {
-	//售货柜对应商品的商品详细信息
-	ProductId uint    `json:"product_id"` // 产品编号
-	Name      string  `json:"name"`
-	Info      string  `json:"info"`
-	Number    int     `json:"number"`
-	Price     float64 `json:"price"`
-	ImageUrl  string  `json:"image_url"`
+type Ranking struct {
+	Name        string `json:"name"`
+	EnglishName string `json:"english_name"`
+	Sale        int    `json:"sale"`
 }
 
+/**
+从redis的zSet从获取对应售货柜和月份的商品排行榜
+*/
+func GetMonthlyRanking(machineId uint, date string) (rankings []Ranking, err error) {
+	defer func() {
+		if err != nil {
+			err = fmt.Errorf("service.GetMonthlyRanking: %w", err)
+		}
+	}()
+	// 获得zSet的名称
+	zSet := utils.GetRankingZSetKey(machineId, date)
+	log.Println("zSet: ", zSet)
+	productIds, sales := model.ZsetRevRange(zSet, 0, 10) // 获得降序前10的商品id和对应销量
+	for index, idStr := range productIds {
+		// 根据productIds取出Name和EnglishName
+		productId, err := strconv.Atoi(idStr)
+		if err != nil {
+			log.Println(err)
+			return nil, err
+		}
+		product := &model.Product{
+			Id: uint(productId),
+		}
+		p, err := product.GetProductByStructQuery()
+		if err != nil {
+			log.Println(err)
+			return nil, err
+		}
+		// 将该排行榜记录加入排行榜list
+		rankings = append(rankings, Ranking{p.Name, p.EnglishName, sales[index]})
+	}
+	return
+}
+func GetMachinesByBusinessId(businessId uint) (machines []model.Machine, err error) {
+	defer func() {
+		if err != nil {
+			err = fmt.Errorf("service.GetMachinesByBusinessId: %w", err)
+		}
+	}()
+	machine := &model.Machine{
+		BusinessId: businessId,
+	}
+	machines, err = machine.GetMachineListByStructQuery()
+	if err != nil {
+		log.Println(err)
+		return nil, err
+	}
+	return
+}
 func AddMachine(businessId uint, location string, modelId uint) (id uint, err error) {
 	defer func() {
 		if err != nil {
@@ -24,9 +72,10 @@ func AddMachine(businessId uint, location string, modelId uint) (id uint, err er
 	}()
 
 	machine := &model.Machine{
-		BusinessId: businessId,
-		Location:   location,
-		ModelId:    modelId,
+		BusinessId:   businessId,
+		Location:     location,
+		ModelId:      modelId,
+		DeployedTime: time.Now(),
 	}
 	id, err = machine.AddMachine()
 	if err != nil {
@@ -34,38 +83,4 @@ func AddMachine(businessId uint, location string, modelId uint) (id uint, err er
 		return 0, err
 	}
 	return
-}
-
-/**
-根据售货柜Id，返回售货柜商品完整信息
-*/
-func GetMachineGoodsById(id uint) (businessId uint, location string, goodsInfoList []GoodsInfo, modelId uint, err error) {
-	defer func() {
-		if err != nil {
-			err = fmt.Errorf("service.GetMachineById: %w", err)
-		}
-	}()
-	machine := &model.Machine{
-		Id: id,
-	}
-	m, err := machine.GetMachineGoodsById()
-	if err != nil {
-		log.Println(err)
-		return 0, "", nil, 0, err
-	}
-	// goods中只保存了售货柜中商品数量这一信息，故查询对应的product，将完整信息返回
-	for _, goods := range m.Goods {
-		product := &model.Product{
-			Id: goods.ProductId,
-		}
-		p, err := product.GetProductByStructQuery()
-		if err != nil {
-			log.Println(err)
-			return 0, "", nil, 0, err
-		}
-		goodsInfo := GoodsInfo{goods.ProductId, p.Name, p.Info, goods.Number, p.Price, p.ImageUrl}
-		goodsInfoList = append(goodsInfoList, goodsInfo)
-	}
-	// 根据goods
-	return m.BusinessId, m.Location, goodsInfoList, m.ModelId, nil
 }

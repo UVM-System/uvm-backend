@@ -6,8 +6,27 @@ import (
 	"os"
 	"path"
 	"sort"
+	"strconv"
 	"strings"
 )
+
+/**
+获得TimeFormat
+*/
+func GetTimeFormat(haveDay bool) string {
+	if haveDay {
+		return "2006-01-02"
+	} else {
+		return "2006-01"
+	}
+}
+
+/**
+获得redis月排行榜zSet的key值：machinId-year-month
+*/
+func GetRankingZSetKey(machineId uint, date string) string {
+	return strconv.Itoa(int(machineId)) + "-" + date
+}
 
 func GetUUID() string {
 	return uuid.NewV4().String()

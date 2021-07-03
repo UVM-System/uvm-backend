@@ -31,7 +31,10 @@ func Router() *gin.Engine {
 	r.GET("/business/order/detail", GetOrderByOrderNumber)
 	// 售货柜
 	r.POST("/business/machine/add", AddMachine)
-
+	r.GET("/business/machine/machineList", GetMachinesByBusinessId)
+	r.GET("/business/machine/goodsList", GetGoodsByMachineId)
+	r.GET("/business/machine/orderStatistics", GetOrderStatisticsByMachineId)
+	r.GET("/business/machine/monthlyRanking", GetMonthlyRanking)
 	//// 商品图片下载
 	r.GET("/product/image/download", Download)
 

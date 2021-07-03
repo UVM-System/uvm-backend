@@ -6,8 +6,53 @@ import (
 	"uvm-backend/model"
 )
 
+type GoodsInfo struct {
+	//售货柜对应商品的商品详细信息
+	ProductId   uint    `json:"product_id"` // 产品编号
+	Name        string  `json:"name"`
+	EnglishName string  `json:"english_name"`
+	Info        string  `json:"info"`
+	Number      int     `json:"number"`
+	Price       float64 `json:"price"`
+	ImageUrl    string  `json:"image_url"`
+}
+
 /**
-新增Goods；需要更新对应Product的number
+根据售货柜Id，返回售货柜商品完整信息（包括goods和product的信息）
+*/
+func GetGoodsByMachineId(id uint) (goodsInfoList []GoodsInfo, err error) {
+	defer func() {
+		if err != nil {
+			err = fmt.Errorf("service.GetMachineById: %w", err)
+		}
+	}()
+	g := &model.Goods{
+		MachineId: id,
+	}
+	goodsList, err := g.GetGoodsListByStructQuery()
+	if err != nil {
+		log.Println(err)
+		return nil, err
+	}
+	// goods中只保存了售货柜中商品数量这一信息，故查询对应的product，将完整信息返回
+	for _, goods := range goodsList {
+		product := &model.Product{
+			Id: goods.ProductId,
+		}
+		p, err := product.GetProductByStructQuery()
+		if err != nil {
+			log.Println(err)
+			return nil, err
+		}
+		goodsInfo := GoodsInfo{goods.ProductId, p.Name, p.EnglishName, p.Info, goods.Number, p.Price, p.ImageUrl}
+		goodsInfoList = append(goodsInfoList, goodsInfo)
+	}
+	// 根据goods
+	return
+}
+
+/**
+新增Goods，需要更新对应Product的number
 */
 func AddGoods(machineId uint, productId uint, number int) (id uint, err error) {
 	defer func() {

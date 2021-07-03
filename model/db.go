@@ -7,7 +7,8 @@ import (
 /**
 MySQL
 */
-var DB = database.GetDB()
+var DB = database.GetDB()           // SQL
+var RedisDB = database.GetRedisDB() // redis
 
 func init() {
 	err := DB.AutoMigrate(&Business{})

@@ -31,6 +31,33 @@ func (User) TableName() string {
 //	OpenId 		string		`json:"openid"`
 //	SessionKey  string 		`json:"session_key"`
 //}
+/**
+下单后，要更新用户的订单信息
+*/
+func (u *User) UpdateUserDealInfo(dealTime time.Time) (user User, err error) {
+	defer func() {
+		if err != nil {
+			err = fmt.Errorf("model.UpdateUserDealInfo: %w", err)
+		}
+	}()
+	// 查询user
+	result := DB.Where(u).Find(&user)
+	err = result.Error
+	if err != nil {
+		log.Println(err)
+		return User{}, err
+	}
+	// 交易数+1，更新上一次交易时间
+	user.DealTimes = user.DealTimes + 1
+	user.LastDealTime = &dealTime
+	result = DB.Model(u).Updates(user)
+	err = result.Error
+	if err != nil {
+		log.Println(err)
+		return User{}, err
+	}
+	return user, nil
+}
 
 /**
 更新User记录

@@ -52,6 +52,24 @@ func (g *Goods) GetGoodsByStructQuery() (goods Goods, err error) {
 }
 
 /**
+结构体查询GoodsList
+*/
+func (g *Goods) GetGoodsListByStructQuery() (goods []Goods, err error) {
+	defer func() {
+		if err != nil {
+			err = fmt.Errorf("model.GetGoodsListByStructQuery: %w", err)
+		}
+	}()
+	result := DB.Where(g).Find(&goods)
+	err = result.Error
+	if err != nil {
+		log.Println(err)
+		return nil, err
+	}
+	return
+}
+
+/**
 更新Goods
 */
 func (g *Goods) UpdateGoods() (goods Goods, err error) {

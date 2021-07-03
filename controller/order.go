@@ -8,11 +8,33 @@ import (
 )
 
 /**
+根据售货柜Id查询每个月订单数、商品数、总收入
+*/
+func GetOrderStatisticsByMachineId(ctx *gin.Context) {
+	machineId, err := strconv.Atoi(ctx.Query("MachineId"))
+	if err != nil {
+		log.Println(err)
+		ErrorResponse(ctx, err)
+		return
+	}
+	orderStatistics, err := service.GetOrderStatisticsByMachineId(uint(machineId))
+	if err != nil {
+		log.Println(err)
+		ErrorResponse(ctx, err)
+		return
+	}
+	SuccessResponse(ctx, gin.H{
+		"message":          "获取订单统计数据成功！",
+		"order_statistics": orderStatistics,
+	})
+}
+
+/**
 根据订单号查询订单
 */
 func GetOrderByOrderNumber(ctx *gin.Context) {
-	OrderNumber := ctx.Query("OrderNumber")
-	order, err := service.GetOrderByOrderNumber(OrderNumber)
+	orderNumber := ctx.Query("OrderNumber")
+	order, err := service.GetOrderByOrderNumber(orderNumber)
 	if err != nil {
 		log.Println(err)
 		ErrorResponse(ctx, err)
@@ -89,17 +111,17 @@ func GetOrdersByDateNStatus(ctx *gin.Context) {
 */
 func AddOrder(ctx *gin.Context) {
 	var data struct {
+		OrderNumber  string
 		UserId       uint
 		BusinessId   uint
 		MachineId    uint
 		Status       bool
-		OrderNumber  string
 		OrderContent string
-		TotalPrice   float64
+		Number       int
+		Price        float64
 	}
 	ctx.ShouldBindJSON(&data)
-	log.Println(data)
-	id, err := service.AddOrder(data.OrderNumber, data.OrderContent, data.TotalPrice, data.UserId, data.MachineId, data.BusinessId, data.Status)
+	id, err := service.AddOrder(data.OrderNumber, data.UserId, data.MachineId, data.BusinessId, data.OrderContent, data.Number, data.Price, data.Status)
 	if err != nil {
 		log.Println(err)
 		ErrorResponse(ctx, err)
