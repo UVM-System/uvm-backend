@@ -121,15 +121,32 @@ image_names = [
 # 简单的对于参数的设定和实际图片集的大小进行数量判断
 if len(image_names) != IMAGE_ROW * IMAGE_COLUMN:
     raise ValueError("合成图片的参数和要求的数量不能匹配！")
- 
+
+from PIL import Image, ImageDraw, ImageFont
+
+def image_add_text(img, text, left, top, text_color=(0, 0, 0), text_size=40):
+    # 创建一个可以在给定图像上绘图的对象
+    draw = ImageDraw.Draw(img)
+    # 字体的格式 这里的simsun.ttc需要有这个字体
+    fontStyle = ImageFont.truetype("simsun.ttc", text_size, encoding="utf-8")
+    # 绘制文本
+    draw.text((left, top), text, text_color, font=fontStyle)
+    return img
+
+
+# img_path = 'assets/1.jpg'
+# im = image_add_text(img_path, '这是一个测试', 50, 100, text_color=(0, 0, 0), text_size=20)
+# im.show()
+
+
 # 定义图像拼接函数
 def image_compose():
-    to_image = Image.new('RGB', (IMAGE_COLUMN * IMAGE_SIZE, IMAGE_ROW * IMAGE_SIZE)) #创建一个新图
+    to_image = Image.new('RGB', (IMAGE_COLUMN * IMAGE_SIZE, IMAGE_ROW * (IMAGE_SIZE + 40)), color="white") #创建一个新图
     # 循环遍历，把每张图片按顺序粘贴到对应位置上
     for y in range(1, IMAGE_ROW + 1):
         for x in range(1, IMAGE_COLUMN + 1):
-            from_image = Image.open(IMAGES_PATH + image_names[IMAGE_COLUMN * (y - 1) + x - 1]).resize(
-                (IMAGE_SIZE, IMAGE_SIZE),Image.ANTIALIAS)
-            to_image.paste(from_image, ((x - 1) * IMAGE_SIZE, (y - 1) * IMAGE_SIZE))
+            from_image = Image.open(IMAGES_PATH + image_names[IMAGE_COLUMN * (y - 1) + x - 1]).resize((IMAGE_SIZE, IMAGE_SIZE),Image.ANTIALIAS)
+            to_image.paste(from_image, ((x - 1) * IMAGE_SIZE, (y - 1) * (IMAGE_SIZE + 40)))
+            to_image = image_add_text(to_image, image_names[IMAGE_COLUMN * (y - 1) + x - 1][:-4].center(8), (x - 1) * IMAGE_SIZE + IMAGE_SIZE / 2 - 75, (y - 1) * (IMAGE_SIZE + 40) + IMAGE_SIZE)
     return to_image.save(IMAGE_SAVE_PATH) # 保存新图
 image_compose() #调用函数
